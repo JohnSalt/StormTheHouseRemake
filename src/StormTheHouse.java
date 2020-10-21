@@ -1,4 +1,5 @@
 import processing.core.PApplet;
+import processing.core.PImage;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,16 +13,28 @@ public class StormTheHouse extends PApplet {
     private ArrayList<Integer> speeds;
     private boolean isMouseEnabled = true;
     Base base = new Base();
-
-
+    ArrayList<PImage> images = new ArrayList<>();
+    PImage img1, img2,img3,img4,img5;
     public static void main(String[] args) {
         PApplet.main("StormTheHouse");
     }
 
     public void setup() {
+        img1 = loadImage("frame1.gif");
+        img2 = loadImage("frame2.gif");
+        img3 = loadImage("frame3.gif");
+        img4 = loadImage("frame4.gif");
+        img5 = loadImage("frame5.gif");
+        images.add(img1);
+        images.add(img2);
+        images.add(img3);
+        images.add(img4);
+        images.add(img5);
         window.drawBackground(this);
         frameRate(10);
-
+        for(int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).setImages(images.get(i));
+        }
     }
 
     public void settings() {
@@ -29,14 +42,19 @@ public class StormTheHouse extends PApplet {
     }
 
     public void draw() {
+
         window.drawBackground(this);
         base.drawBase(this);
+        for(int i = 0; i < enemies.size(); i++) {
+            loadImages(enemies.get(i).getCurrentX(),enemies.get(i).getStartingY());
+        }
+
         textSize(30);
         text("Day: " + day, window.getWindowWidth()-textSizeModifier, 35);
 
-        if (enemies.size() == 0) {
+        if (enemies.size() == 0) { //Round End
             System.out.println("Enemies list empty");
-            day++;
+            day++;                 //increase day therefore number of enemies
             if (day%power == 0) {
                 textSizeModifier += 15;
                 power*=10;
@@ -59,8 +77,11 @@ public class StormTheHouse extends PApplet {
     public void mousePressed() {
         if (isMouseEnabled) {
             for (int i = 0; i < enemies.size(); i++) {
-                if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY() && mouseY <= enemies.get(i).getStartingY() + 50) {
+                if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY()+3 && mouseY <= enemies.get(i).getStartingY() + 45) {
                     enemies.get(i).setHealth(1);
+                    fill(255,0,0);
+                    ellipseMode(CENTER);
+                    ellipse(mouseX,mouseY,5,5);
                     if (enemies.get(i).getHealth() == 0) {
                         enemies.remove(i);
                     }
@@ -133,6 +154,20 @@ public class StormTheHouse extends PApplet {
         fill(207, 209, 88);
         if (healthBarLength >= 0) {
             rect(window.getWindowWidth() / 2 - 70, 10, healthBarLength, 20);
+        }
+    }
+    public void loadImages(int x, int y) {   //sprite animation
+        imageMode(CORNER);
+        if (frameCount%5==0) {
+            image(img1, x, y);
+        } else if (frameCount%5==1){
+            image(img2,x,y);
+        } else if (frameCount%5==2){
+            image(img3,x,y);
+        } else if (frameCount%5==3){
+            image(img4,x,y);
+        } else if (frameCount%5==4){
+            image(img5,x,y);
         }
     }
 }

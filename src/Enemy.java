@@ -6,7 +6,7 @@ public class Enemy {
     private PApplet p;
     private int speed, startingY, currentX, health;
     private Random r = new Random();
-
+    public ArrayList<PImage> images;
 
     public Enemy() {
         this.speed = r.nextInt(10)+4;
@@ -25,9 +25,9 @@ public class Enemy {
     }
 
     public void drawEnemy(PApplet parent, Enemy e) {
-        parent.fill(255,0,0);
-        parent.rectMode(parent.CORNER);
-        parent.rect(currentX,startingY,20,50);
+        //parent.fill(255,0,0);
+        //parent.rectMode(parent.CORNER);
+        //parent.rect(currentX,startingY,20,50);
     }
 
 
@@ -62,5 +62,7 @@ public class Enemy {
     public void move() {
         currentX += speed;
     }
-
+    public void setImages(PImage img) {
+        images.add(img);
+    }
 }
