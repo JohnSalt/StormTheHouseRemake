@@ -15,6 +15,11 @@ public class StormTheHouse extends PApplet {
     Base base = new Base();
     ArrayList<PImage> images = new ArrayList<>();
     PImage img1, img2,img3,img4,img5;
+    Wallet wallet = new Wallet();
+    Magazine clip = new Magazine();
+    Timer t = new Timer();
+
+
     public static void main(String[] args) {
         PApplet.main("StormTheHouse");
     }
@@ -74,18 +79,25 @@ public class StormTheHouse extends PApplet {
         updateHealthBar();
         checkForLoss();
     }
+
     public void mousePressed() {
         if (isMouseEnabled) {
-            for (int i = 0; i < enemies.size(); i++) {
-                if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY()+3 && mouseY <= enemies.get(i).getStartingY() + 45) {
-                    enemies.get(i).setHealth(1);
-                    fill(255,0,0);
-                    ellipseMode(CENTER);
-                    ellipse(mouseX,mouseY,5,5);
-                    if (enemies.get(i).getHealth() == 0) {
-                        enemies.remove(i);
+            if (clip.getAmmo() > 0) {
+                for (int i = 0; i < enemies.size(); i++) {
+                    if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY() + 3 && mouseY <= enemies.get(i).getStartingY() + 45) {
+                        enemies.get(i).setHealth(1);
+                        fill(255, 0, 0);
+                        ellipseMode(CENTER);
+                        ellipse(mouseX, mouseY, 5, 5);
+                        if (enemies.get(i).getHealth() == 0) {
+                            enemies.remove(i);
+                        }
                     }
                 }
+                clip.decreaseAmmo();
+                System.out.println(clip.getAmmo());
+            } else {
+                System.out.println("Out of ammo");
             }
         }
     }
@@ -116,15 +128,27 @@ public class StormTheHouse extends PApplet {
                 enemies.remove(i); //removes enemies DEBUG
             }
         }
+        if (key == ' ' && clip.getAmmo() != clip.getCapacity()) {
+            t.setTotalTime(clip.getCapacity()*100+millis());
+            if(t.getSavedTime()<t.getTotalTime()) {
+                t.setSavedTime(millis());
+                System.out.println("Reloading...");
+            } else {
+                clip.setAmmo(clip.getCapacity());
+                System.out.println("Reloaded!");
+            }
+        }
     }
 
-    public void createEnemies() {
-        for (int i = 0; i < day*2; i++) {
+    public void createEnemies() {       //creates enemies based on day
+        for (int i = 0; i < 2.4*Math.sqrt(day) + 1.4*day + 3; i++) { //y = 2.4\sqrt{x}+1.4x+3 defines number of enemies
             enemies.add(new Enemy());
+            setSpeedModifier(day, enemies.get(i));
             enemies.get(i).drawEnemy(this, enemies.get(i));
         }
     }
-    public void moveAll() {
+
+    public void moveAll() {             //move all of the enemies each frame
         for (int i = 0; i < enemies.size(); i++) {
             enemies.get(i).move();
         }
@@ -139,7 +163,8 @@ public class StormTheHouse extends PApplet {
             }
         }
     }
-    public void damageWall() {
+
+    public void damageWall() {         //checks if enemies aren't moving(if speed = 0) and damages the wall 1 for every enemy that isn't moving every 10 frames(1 second)
         for (int i = 0; i < enemies.size(); i++) {
             if (enemies.get(i).getSpeed() == 0) {
                 if (frameCount%10 == 0) {
@@ -148,7 +173,8 @@ public class StormTheHouse extends PApplet {
             }
         }
     }
-    public void updateHealthBar() {
+
+    public void updateHealthBar() {    //updates wall health visual
         float healthBarLength = (float)base.getHealth()/100*140;
         stroke(0);
         fill(207, 209, 88);
@@ -156,6 +182,7 @@ public class StormTheHouse extends PApplet {
             rect(window.getWindowWidth() / 2 - 70, 10, healthBarLength, 20);
         }
     }
+
     public void loadImages(int x, int y) {   //sprite animation
         imageMode(CORNER);
         if (frameCount%5==0) {
@@ -168,6 +195,13 @@ public class StormTheHouse extends PApplet {
             image(img4,x,y);
         } else if (frameCount%5==4){
             image(img5,x,y);
+        }
+    }
+
+    public void setSpeedModifier(int day, Enemy enemy) {       //makes them faster dependant on the day
+        int change = day/10;
+        if (day%10==0) {
+            enemy.setSpeedModifier(enemy.getSpeedModifier() + change);
         }
     }
 }
