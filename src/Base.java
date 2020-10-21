@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Base {
     PApplet p = new PApplet();
     int x1,x2,x3,x4,y1,y2,health;
-    Window window = new Window(p);
+    Window window = new Window(p); //
 
     public Base() {
         x1 = 720;
