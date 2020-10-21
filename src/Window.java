@@ -14,6 +14,9 @@ public class Window {
         parent.background(0,191,255);
         parent.fill(184,134,11);
         parent.rect(0, windowHeight/3,windowWidth,windowHeight/3*2);
+        parent.fill(201, 201, 201);
+        parent.stroke(0);
+        parent.rect(windowWidth/2-70, 10,140,20);
     }
 
     public int getWindowWidth() {
