@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Base {
     PApplet p = new PApplet();
-    int x1,x2,x3,x4,y1,y2,y3,y4;
+    int x1,x2,x3,x4,y1,y2,health;
     Window window = new Window(p);
 
     public Base() {
@@ -13,6 +13,7 @@ public class Base {
         x4 = 925;
         y1 = 210;
         y2 = 560;
+        this.health = 100;
     }
     public void drawBase(PApplet parent) {
         parent.fill(139,69,19);
@@ -22,4 +23,11 @@ public class Base {
     public int getSlope() { //y = -2x + 1650 //(y-1650)/-2
         return (y2-y1)/(x3-x1);
     }
+    public void setHealth(int damage) {
+        this.health -= damage;
+    }
+    public int getHealth() {
+        return health;
+    }
+
 }
