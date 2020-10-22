@@ -16,4 +16,7 @@ public class Wallet {
     public void increaseMoney(int amount) {
         money += amount;
     }
+    public void decreaseMoney(int amount) {
+        money -= amount;
+    }
 }
