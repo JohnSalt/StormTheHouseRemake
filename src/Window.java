@@ -17,6 +17,8 @@ public class Window {
         parent.fill(201, 201, 201);
         parent.stroke(0);
         parent.rect(windowWidth/2-70, 10,140,20);
+        parent.fill(0);
+        parent.rect(100,5,40,40);
     }
 
     public int getWindowWidth() {
