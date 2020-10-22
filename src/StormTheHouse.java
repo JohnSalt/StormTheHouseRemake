@@ -1,6 +1,5 @@
 import processing.core.PApplet;
 import processing.core.PImage;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -11,13 +10,15 @@ public class StormTheHouse extends PApplet {
     Window window = new Window(this);
     ArrayList<Enemy> enemies = new ArrayList<>();
     private ArrayList<Integer> speeds;
-    private boolean isMouseEnabled = true;
+    private boolean isMouseEnabled = true, isReloading;
     Base base = new Base();
     ArrayList<PImage> images = new ArrayList<>();
     PImage img1, img2,img3,img4,img5;
     Wallet wallet = new Wallet();
     Magazine clip = new Magazine();
-    Timer t = new Timer();
+    long startTime;
+
+
 
 
     public static void main(String[] args) {
@@ -36,6 +37,7 @@ public class StormTheHouse extends PApplet {
         images.add(img4);
         images.add(img5);
         window.drawBackground(this);
+        isReloading = false;
         frameRate(10);
         for(int i = 0; i < enemies.size(); i++) {
             enemies.get(i).setImages(images.get(i));
@@ -47,13 +49,18 @@ public class StormTheHouse extends PApplet {
     }
 
     public void draw() {
-
         window.drawBackground(this);
         base.drawBase(this);
+
         for(int i = 0; i < enemies.size(); i++) {
-            loadImages(enemies.get(i).getCurrentX(),enemies.get(i).getStartingY());
+            loadImages(enemies.get(i).getCurrentX(),enemies.get(i).getStartingY());  //ANIMATION
         }
 
+
+        if (isReloading && millis()-startTime >= 947*Math.log(clip.getCapacity()) + 1059) {//947*Math.log(clip.getCapacity()) + 1059 when to stop timer
+            clip.setAmmo(clip.getCapacity());
+            stopTimer();
+        }
         textSize(30);
         text("Day: " + day, window.getWindowWidth()-textSizeModifier, 35);
 
@@ -92,6 +99,7 @@ public class StormTheHouse extends PApplet {
                         if (enemies.get(i).getHealth() == 0) {
                             enemies.remove(i);
                         }
+                        updateWallet();
                     }
                 }
                 clip.decreaseAmmo();
@@ -112,6 +120,7 @@ public class StormTheHouse extends PApplet {
         }
     }
     public void keyPressed() {
+
         if (key == 'p') {
             loop();
             isMouseEnabled = true;
@@ -128,14 +137,17 @@ public class StormTheHouse extends PApplet {
                 enemies.remove(i); //removes enemies DEBUG
             }
         }
-        if (key == ' ' && clip.getAmmo() != clip.getCapacity()) {
-            t.setTotalTime(clip.getCapacity()*100+millis());
-            if(t.getSavedTime()<t.getTotalTime()) {
-                t.setSavedTime(millis());
-                System.out.println("Reloading...");
-            } else {
-                clip.setAmmo(clip.getCapacity());
-                System.out.println("Reloaded!");
+        if (key == ' ') {
+            System.out.println("Space pressed");
+            if (clip.getAmmo() != clip.getCapacity()) {
+                System.out.println("Ammo<Capacity");
+                if (!isReloading) {
+                    System.out.println("IsReloading= false");
+                    startTimer();
+                    isReloading = true;
+                    System.out.println("Reload");
+                    isMouseEnabled = false;
+                }
             }
         }
     }
@@ -204,4 +216,15 @@ public class StormTheHouse extends PApplet {
             enemy.setSpeedModifier(enemy.getSpeedModifier() + change);
         }
     }
+    public void startTimer() {
+        startTime = millis();
+    }
+    public void stopTimer() {
+        isReloading = false;
+        isMouseEnabled = true;
+    }
+    public void updateWallet() {
+        wallet.increaseMoney(100);
+    }
 }
+//947*Math.log(clip.getCapacity()) + 1059 when to stop timer
