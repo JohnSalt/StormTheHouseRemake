@@ -13,7 +13,7 @@ public class Base {
         x4 = 925;
         y1 = 210;
         y2 = 560;
-        this.health = 100;
+        this.health = 1000;
     }
     public void drawBase(PApplet parent) {
         parent.fill(139,69,19);
