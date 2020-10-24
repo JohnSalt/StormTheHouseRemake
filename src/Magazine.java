@@ -2,8 +2,8 @@ public class Magazine {
     private int capacity, ammo;
 
     public Magazine() {
-        this.capacity = 10;
-        this.ammo = 10;
+        this.capacity = 7;
+        this.ammo = 7;
     }
 
     public int getCapacity() {
