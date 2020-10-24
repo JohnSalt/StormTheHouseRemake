@@ -1,24 +1,24 @@
 import processing.core.PApplet;
-
+import processing.core.PImage;
 public class Window {
     private PApplet p;
     private int windowWidth = 1024, windowHeight = windowWidth/16*9;  //16:9 aspect ratio
-
+    public PImage background, ammoButton;
     public Window(PApplet parent) {
         p = parent;
     }
 
-    public void drawBackground(PApplet parent) {
+    public void drawComponents(PApplet parent) {
         p = parent;
+        parent.fill(227, 227, 227);
         parent.noStroke();
-        parent.background(0,191,255);
-        parent.fill(184,134,11);
-        parent.rect(0, windowHeight/3,windowWidth,windowHeight/3*2);
+        parent.rect(0,0,1024,23);
         parent.fill(201, 201, 201);
         parent.stroke(0);
-        parent.rect(windowWidth/2-70, 10,140,20);
+        parent.rect(windowWidth/2+100, 5,140,12); //healthBar
         parent.fill(0);
-        parent.rect(100,5,40,40);
+        parent.stroke(0);
+        parent.rect(5, 5,140,12); //ammo bar
     }
 
     public int getWindowWidth() {
@@ -27,4 +27,5 @@ public class Window {
     public int getWindowHeight() {
         return windowHeight;
     }
+
 }
