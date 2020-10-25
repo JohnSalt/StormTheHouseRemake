@@ -39,4 +39,7 @@ public class Base {
     public void increaseMaxHealth(int amount) {
         maxHealth += amount;
     }
+    public void increaseHealth(int amount) {
+        health += amount;
+    }
 }
