@@ -8,11 +8,11 @@ public class StormTheHouse extends PApplet {
     int gameState = MAIN_MENU;
     int day = 1, textSizeModifier = 100, power = 1;
     double reloadTime = 1312.5;
-    boolean isMouseEnabled = true, gameIsRunning = true, spawnEnemies = true, increaseDay = true;
+    boolean isMouseEnabled = true, gameIsRunning = true, spawnEnemies = true, increaseDay = true, isMouseHeld;
     ArrayList<Enemy> enemies = new ArrayList<>();
 
 
-    PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10,mainMenu,startButtonLarge,startButtonSmall;
+    PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10,mainMenu,startButtonLarge,startButtonSmall,clipSizeUpgrade,wallUpgrade,houseUpgrade,sniperRifle,addGunman,addCraftsman,missileSilo,repair,done;
     Random r = new Random();
     Window window = new Window(this);
     Base base = new Base();
@@ -31,6 +31,16 @@ public class StormTheHouse extends PApplet {
         mainMenu = loadImage("main-menu-screen.png");
         startButtonLarge = loadImage("start-button-larger.png");
         startButtonSmall = loadImage("start-button-smaller.png");
+        clipSizeUpgrade = loadImage("clip-size-upgrade.png");
+        wallUpgrade = loadImage("upgrade-wall.png");
+        sniperRifle = loadImage("sniper-rifle.png");
+        repair = loadImage("repair.png");
+        missileSilo = loadImage("missile-silo.png");
+        houseUpgrade = loadImage("house-upgrade.png");
+        addGunman = loadImage("add-gunman.png");
+        addCraftsman = loadImage("add-craftsman.png");
+        done = loadImage("done.png");
+
         img1 = loadImage("frame1.gif");
         img2 = loadImage("frame1.gif");
         img3 = loadImage("frame2.gif");
@@ -91,9 +101,13 @@ public class StormTheHouse extends PApplet {
         if (gameState == SHOP_MENU) {
             gameStateShopMenu();
         }
+        if (gameState == EXIT_GAME) {
+            gameStateExitGame();
+        }
     }
 
     public void mousePressed() {
+        isMouseHeld = true;
         if (gameState == PLAY_GAME) {
             if (isMouseEnabled) {
                 if (clip.getAmmo() > 0) {
@@ -109,29 +123,18 @@ public class StormTheHouse extends PApplet {
                             }
                         }
                     }
-
                     clip.decreaseAmmo();
-
-                } else {
-                    textAlign(CENTER);
-                    text("Out Of Ammo", mouseX, mouseY - 15);
                 }
                 ammoIncreaseButtonPressed();
             }
         }
     }
+    public void mouseReleased() {
+        isMouseHeld = false;
+    }
     public void checkForLoss() {
-        for (int i = 0; i < enemies.size(); i++) {
-            if (base.getHealth() <= 0) {
-                noLoop();
-                isMouseEnabled = false;
-                textSize(60);
-                textAlign(CENTER);
-                fill(0);
-                rect(0,0,1024,576);
-                fill(194, 54, 54);
-                text("YOU DUMB ASS UWU", window.getWindowWidth() / 2, window.getWindowHeight() / 2);
-            }
+        if (base.getHealth() <= 0) {
+            gameState = EXIT_GAME;
         }
     }
     public void keyPressed() {
@@ -207,11 +210,11 @@ public class StormTheHouse extends PApplet {
     }
 
     public void updateHealthBar() {    //updates wall health visual
-        float healthBarLength = (float)base.getHealth()/100*140;
+        float healthBarLength = (float)base.getHealth()/base.getMaxHealth()*140;
         stroke(0);
         fill(227, 123, 123);
         if (healthBarLength >= 0) {
-            rect(window.getWindowWidth() / 2+100, 5, healthBarLength, 12);
+            rect((float)window.getWindowWidth() / 2+100, 5, healthBarLength, 12);
         }
     }
     public void updateAmmoBar() {
@@ -288,15 +291,17 @@ public class StormTheHouse extends PApplet {
         }
     }
     public void gameStateMainMenu() {
-        System.out.println("IN GAMESTATE");
+
         image(mainMenu,0,0);
+
         if (mouseX >= window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-5) {
             image(startButtonLarge, window.getWindowWidth() - 305, window.getWindowHeight() - 185);
         } else {
             image(startButtonSmall, window.getWindowWidth() - 300, window.getWindowHeight() - 180);
         }
+
+
         if (mousePressed && mouseX>=window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-2) {
-            System.out.println("SWITCH STATE");
             gameState = PLAY_GAME;
         }
     }
@@ -307,12 +312,14 @@ public class StormTheHouse extends PApplet {
         image(window.background,0,0);
         window.drawComponents(this);
         base.drawBase(this);
-        System.out.println("SHOULD DRAW BACKGROUND");
+
         if (spawnEnemies) {
             createEnemies();
         }
         spawnEnemies = false;
-        image(window.ammoButton, 2,27);
+
+
+
         textAlign(CENTER);
         fill(0);
         text("$" + wallet.getMoney(),window.getWindowWidth()/2,16);
@@ -320,20 +327,19 @@ public class StormTheHouse extends PApplet {
 
         if (enemies.size() == 0) { //Round End
             gameState = SHOP_MENU;
-            /*System.out.println("Enemies list empty");
-            day++;                 //increase day therefore number of enemies
-            if (day%power == 0) {
-                textSizeModifier += 8;
-                power*=10;
-            }
-            createEnemies();*/
         }
 
         for (int i = 0; i < enemies.size(); i++) {
             loadImages(enemies.get(i).getCurrentX(), enemies.get(i).getStartingY());  //ANIMATION
         }
 
-
+        if (clip.getAmmo() == 0 && isMouseHeld) {
+            fill(252,0,0);
+            textAlign(CENTER);
+            text("Out Of Ammo", mouseX, mouseY-15);
+            textAlign(LEFT);
+            fill(0);
+        }
 
         if (timer1.getIsRunning() && millis() - timer1.getStartTime() >= reloadTime) {      //checks if reloading is done
             System.out.println("Reloading Done");
@@ -353,11 +359,9 @@ public class StormTheHouse extends PApplet {
         damageWall();
 
 
-        text(base.getHealth() + "/100",window.getWindowWidth()/2+245,17);  //base health counter
+        text(base.getHealth() + "/" + base.getMaxHealth(),window.getWindowWidth()/2+245,17);  //base health counter
         text(clip.getAmmo() + "/" + clip.getCapacity(),158,17);
-        if (base.getHealth() < 0) {
-            text(0 + "/100",window.getWindowWidth()-430,17);
-        }
+
         updateHealthBar();
         updateAmmoBar();
         reloadAnimation();
@@ -368,18 +372,56 @@ public class StormTheHouse extends PApplet {
     public void gameStateShopMenu() {
         image(window.background,0,0);
         base.drawBase(this);
-        fill(0,0,0,50);
+        fill(100,100,100,225);
+
         rect(0,0,window.getWindowWidth(),window.getWindowHeight());
-        fill(0);//Continue Button
-        rectMode(CENTER);
-        rect(window.getWindowWidth()/2,window.getWindowHeight()-60,100,40);
-        rectMode(CORNER);
-        if (mousePressed && mouseX >= window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight() - 60 && mouseY <= window.getWindowHeight() - 20) {
+        imageMode(CENTER);
+        image(clipSizeUpgrade,205,192);
+        image(wallUpgrade,410,192);
+        image(repair,615,192);
+        image(addCraftsman,820,192);
+        image(addGunman,205,384);
+        image(missileSilo,410,384);
+        image(houseUpgrade,615,384);
+        image(sniperRifle,820,384);
+        image(done,window.getWindowWidth()/2,window.getWindowHeight()-60);
+        imageMode(CORNER);
+        if (mousePressed && mouseX >= window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight() - 80 && mouseY <= window.getWindowHeight() - 40) {
             System.out.println("Start Game");
             gameState = PLAY_GAME;
             day++;
             spawnEnemies = true;
         }
+        if (mousePressed && mouseX >= 205 && mouseX <= 305 && mouseY >= 192 && mouseY <= 292) {  //upgrade clip
+            if (wallet.getMoney()>=1000) {
+                clip.setCapacity(clip.getCapacity() + 1);
+
+                wallet.decreaseMoney(1000);
+            }
+        }
+        if (mousePressed && mouseX >= 410 && mouseX <= 510 && mouseY >= 192 && mouseY <= 292) {
+            if (wallet.getMoney()>=3000 && base.getHealth() < 250) {
+                base.setHealth(base.getHealth()+50);
+            }
+        }
+        if (mousePressed && mouseX >= 615 && mouseX <= 715 && mouseY >= 192 && mouseY <= 292) {
+            if (wallet.getMoney()>=800 && base.getHealth() < base.getMaxHealth()) {
+                base.increaseMaxHealth(50);
+                wallet.decreaseMoney(800);
+            }
+        }
+        clip.setAmmo(clip.getCapacity());
+    }
+
+    public void gameStateExitGame() {
+        noLoop();
+        isMouseEnabled = false;
+        textSize(60);
+        textAlign(CENTER);
+        fill(0);
+        rect(0,0,1024,576);
+        fill(194, 54, 54);
+        text("YOU DUMB ASS UWU", window.getWindowWidth() / 2, window.getWindowHeight() / 2);
     }
 }
 //947*Math.log(clip.getCapacity()) + 1059 when to stop timer
