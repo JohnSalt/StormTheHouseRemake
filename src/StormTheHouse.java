@@ -12,7 +12,7 @@ public class StormTheHouse extends PApplet {
     ArrayList<Enemy> enemies = new ArrayList<>();
 
 
-    PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10;
+    PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10,mainMenu,startButtonLarge,startButtonSmall;
     Random r = new Random();
     Window window = new Window(this);
     Base base = new Base();
@@ -28,7 +28,9 @@ public class StormTheHouse extends PApplet {
     }
 
     public void setup() {
-
+        mainMenu = loadImage("main-menu-screen.png");
+        startButtonLarge = loadImage("start-button-larger.png");
+        startButtonSmall = loadImage("start-button-smaller.png");
         img1 = loadImage("frame1.gif");
         img2 = loadImage("frame1.gif");
         img3 = loadImage("frame2.gif");
@@ -92,28 +94,30 @@ public class StormTheHouse extends PApplet {
     }
 
     public void mousePressed() {
-        if (isMouseEnabled) {
-            if (clip.getAmmo() > 0) {
-                for (int i = 0; i < enemies.size(); i++) {
-                    if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY() + 3 && mouseY <= enemies.get(i).getStartingY() + 45) {
-                        enemies.get(i).setHealth(1);
-                        fill(255, 0, 0);
-                        ellipseMode(CENTER);
-                        ellipse(mouseX, mouseY, 5, 5);
-                        if (enemies.get(i).getHealth() == 0) {
-                            enemies.remove(i);
-                            updateWallet();
+        if (gameState == PLAY_GAME) {
+            if (isMouseEnabled) {
+                if (clip.getAmmo() > 0) {
+                    for (int i = 0; i < enemies.size(); i++) {
+                        if (mouseX >= enemies.get(i).getCurrentX() - 15 && mouseX <= enemies.get(i).getCurrentX() + 25 && mouseY >= enemies.get(i).getStartingY() + 3 && mouseY <= enemies.get(i).getStartingY() + 45) {
+                            enemies.get(i).setHealth(1);
+                            fill(255, 0, 0);
+                            ellipseMode(CENTER);
+                            ellipse(mouseX, mouseY, 5, 5);
+                            if (enemies.get(i).getHealth() == 0) {
+                                enemies.remove(i);
+                                updateWallet();
+                            }
                         }
                     }
+
+                    clip.decreaseAmmo();
+
+                } else {
+                    textAlign(CENTER);
+                    text("Out Of Ammo", mouseX, mouseY - 15);
                 }
-
-                clip.decreaseAmmo();
-
-            } else {
-                textAlign(CENTER);
-                text("Out Of Ammo",mouseX,mouseY-15);
+                ammoIncreaseButtonPressed();
             }
-            ammoIncreaseButtonPressed();
         }
     }
     public void checkForLoss() {
@@ -285,11 +289,13 @@ public class StormTheHouse extends PApplet {
     }
     public void gameStateMainMenu() {
         System.out.println("IN GAMESTATE");
-        fill(0);
-        rect(0,0,1024,576);
-        fill(255);
-        rect(window.getWindowWidth()/2,window.getWindowHeight()/2,100,100);
-        if (mousePressed && mouseX>=window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight()/2-50 && mouseY <= window.getWindowHeight()/2+50) {
+        image(mainMenu,0,0);
+        if (mouseX >= window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-5) {
+            image(startButtonLarge, window.getWindowWidth() - 305, window.getWindowHeight() - 185);
+        } else {
+            image(startButtonSmall, window.getWindowWidth() - 300, window.getWindowHeight() - 180);
+        }
+        if (mousePressed && mouseX>=window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-2) {
             System.out.println("SWITCH STATE");
             gameState = PLAY_GAME;
         }
