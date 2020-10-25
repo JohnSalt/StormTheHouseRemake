@@ -5,10 +5,10 @@ import java.util.Random;
 
 public class StormTheHouse extends PApplet {
     final int MAIN_MENU = 0, PLAY_GAME = 1,SHOP_MENU = 2, EXIT_GAME = 3;
-    int gameState = PLAY_GAME;
-    int day = 0, textSizeModifier = 100, power = 1;
+    int gameState = MAIN_MENU;
+    int day = 1, textSizeModifier = 100, power = 1;
     double reloadTime = 1312.5;
-    boolean isMouseEnabled = true, gameIsRunning = true;
+    boolean isMouseEnabled = true, gameIsRunning = true, spawnEnemies = true, increaseDay = true;
     ArrayList<Enemy> enemies = new ArrayList<>();
 
 
@@ -64,17 +64,31 @@ public class StormTheHouse extends PApplet {
     }
 
     public void draw() {
-        switch (gameState) {
+        /*switch (gameState) {
             case MAIN_MENU:
-
+                gameStateMainMenu();
+                System.out.println("Main Menu");
             case PLAY_GAME:
-                runGame();
+                gameStateRunGame();
+                System.out.println("Running Game");
             case SHOP_MENU:
-
+                gameStateShopMenu();
+                System.out.println("Shop Menu");
             case EXIT_GAME:
 
-        }
+        }*/
 
+        if(gameState == MAIN_MENU) {
+            gameStateMainMenu();
+            System.out.println("MAIN MENU");
+        }
+        if(gameState == PLAY_GAME) {
+            gameStateRunGame();
+            System.out.println("PLAY GAME");
+        }
+        if (gameState == SHOP_MENU) {
+            gameStateShopMenu();
+        }
     }
 
     public void mousePressed() {
@@ -269,12 +283,29 @@ public class StormTheHouse extends PApplet {
             enemies.get(i).setSpeedModifier((day/20)+4);
         }
     }
-    public void runGame() {
+    public void gameStateMainMenu() {
+        System.out.println("IN GAMESTATE");
+        fill(0);
+        rect(0,0,1024,576);
+        fill(255);
+        rect(window.getWindowWidth()/2,window.getWindowHeight()/2,100,100);
+        if (mousePressed && mouseX>=window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight()/2-50 && mouseY <= window.getWindowHeight()/2+50) {
+            System.out.println("SWITCH STATE");
+            gameState = PLAY_GAME;
+        }
+    }
+    public void gameStateRunGame() {
+
         updateSpeedModifier();
         textSize(15);
         image(window.background,0,0);
         window.drawComponents(this);
         base.drawBase(this);
+        System.out.println("SHOULD DRAW BACKGROUND");
+        if (spawnEnemies) {
+            createEnemies();
+        }
+        spawnEnemies = false;
         image(window.ammoButton, 2,27);
         textAlign(CENTER);
         fill(0);
@@ -282,13 +313,14 @@ public class StormTheHouse extends PApplet {
         textAlign(LEFT);
 
         if (enemies.size() == 0) { //Round End
-            System.out.println("Enemies list empty");
+            gameState = SHOP_MENU;
+            /*System.out.println("Enemies list empty");
             day++;                 //increase day therefore number of enemies
             if (day%power == 0) {
                 textSizeModifier += 8;
                 power*=10;
             }
-            createEnemies();
+            createEnemies();*/
         }
 
         for (int i = 0; i < enemies.size(); i++) {
@@ -327,8 +359,21 @@ public class StormTheHouse extends PApplet {
 
     }
 
-    public void gameStateShop() {
-
+    public void gameStateShopMenu() {
+        image(window.background,0,0);
+        base.drawBase(this);
+        fill(0,0,0,50);
+        rect(0,0,window.getWindowWidth(),window.getWindowHeight());
+        fill(0);//Continue Button
+        rectMode(CENTER);
+        rect(window.getWindowWidth()/2,window.getWindowHeight()-60,100,40);
+        rectMode(CORNER);
+        if (mousePressed && mouseX >= window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight() - 60 && mouseY <= window.getWindowHeight() - 20) {
+            System.out.println("Start Game");
+            gameState = PLAY_GAME;
+            day++;
+            spawnEnemies = true;
+        }
     }
 }
 //947*Math.log(clip.getCapacity()) + 1059 when to stop timer
