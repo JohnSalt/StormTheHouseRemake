@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.Random;
 public class Enemy {
     private PApplet p;
-    private int speed, startingY, currentX, health, randomChance, speedModifier = 4;
+    private int speed, startingY, currentX, health, randomChance, speedModifier = 1;
     private Random r = new Random();
     public ArrayList<PImage> images;
 
     public Enemy() {
-        this.speed = r.nextInt(4)+speedModifier/2;
+        this.speed = r.nextInt(2)+speedModifier;
         this.startingY = r.nextInt(326)+192;
+        this.currentX = r.nextInt((100)+20)*-1;
         randomChance = r.nextInt(100)+1;
-        if (randomChance>50) {
+        /*if (randomChance>50) {
             this.currentX = r.nextInt(300) * -1;
         } else {
             this.currentX = (r.nextInt(800)+300)*-1;
-        }
+        }*/
         this.health = 2;
     }
     public Enemy(PApplet parent) {
