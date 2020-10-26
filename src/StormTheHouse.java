@@ -30,8 +30,7 @@ public class StormTheHouse extends PApplet {
     }
 
     public void setup() {
-        background = new SoundFile(this,"background-sound.mp3");
-        background.play();
+
         gameFont = createFont("GROBOLD.ttf",15);
         textFont(gameFont);
         mainMenu = loadImage("main-menu-screen.png");
@@ -86,11 +85,21 @@ public class StormTheHouse extends PApplet {
             gameStateMainMenu();
         }
         if(gameState == PLAY_GAME) {
-            dayTimer.startTimer(this);
-            while(millis() - dayTimer.getStartTime() < 75000) {
-                gameStateRunGame();
+            if (!dayTimer.getIsRunning()) {
+                dayTimer.startTimer(this);
             }
-            dayTimer.stopTimer();
+            System.out.println("AFTER START TIMER");
+
+            if(millis() - dayTimer.getStartTime() < 75000) {
+                System.out.println("IN IF");
+                gameStateRunGame();
+                text((float)(millis()-dayTimer.getStartTime())/1000, 0,window.getWindowHeight()-40);
+            } else {
+                System.out.println("IN ELSE");
+                dayTimer.stopTimer();
+                gameState = SHOP_MENU;
+                System.out.println("STOPPED TIMER");
+            }
         }
         if (gameState == SHOP_MENU) {
             gameStateShopMenu();
@@ -226,7 +235,9 @@ public class StormTheHouse extends PApplet {
             setSpeedModifier(day, enemies.get(i));
         }
     }
-
+    public void createSingleEnemy() {
+        enemies.add(new Enemy());
+    }
     public void moveAll() {             //move all of the enemies each frame
         for (Enemy enemy : enemies) {
             enemy.move();
@@ -356,12 +367,14 @@ public class StormTheHouse extends PApplet {
         image(window.background,0,0);
         window.drawComponents(this);
         base.drawBase(this);
-        image(frog,830,window.getWindowHeight()/2-75);
-        if (spawnEnemies && ) {
+        image(frog,830,(float)window.getWindowHeight()/2-75);
+        if (spawnEnemies) {
             createEnemies();
         }
         spawnEnemies = false;
-
+        if (enemies.size() < 2*day-1) {
+            createSingleEnemy();
+        }
         textAlign(CENTER);
         fill(	133, 187, 101);
         text("$" + wallet.getMoney(),(float)window.getWindowWidth()/2,18);
@@ -408,6 +421,9 @@ public class StormTheHouse extends PApplet {
     }
 
     public void gameStateShopMenu() {
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.remove(i);
+        }
         stroke(0);
         textSize(15);
         image(window.background,0,0);
