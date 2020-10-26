@@ -10,9 +10,10 @@ public class Window {
 
     public void drawComponents(PApplet parent) {
         p = parent;
-        parent.fill(227, 227, 227);
-        parent.noStroke();
+        parent.stroke(0);
+        parent.fill(250);
         parent.rect(0,0,1024,23);
+        parent.noStroke();
         parent.fill(201, 201, 201);
         parent.stroke(0);
         parent.rect(windowWidth/2+100, 5,140,12); //healthBar

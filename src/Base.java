@@ -24,7 +24,7 @@ public class Base {
     public int getSlope() { //y = -2x + 1650 //(y-1650)/-2
         return (y2-y1)/(x3-x1);
     }
-    public void setHealth(int damage) {
+    public void decreaseHealth(int damage) {
         this.health -= damage;
     }
     public void setMaxHealth(int maxHealth) {
@@ -41,5 +41,8 @@ public class Base {
     }
     public void increaseHealth(int amount) {
         health += amount;
+    }
+    public void setHealth(int health) {
+        this.health = health;
     }
 }
