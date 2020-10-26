@@ -59,7 +59,7 @@ public class Enemy {
     public void setSpeed(int speed) {
         this.speed = speed;
     }
-    public void setHealth(int damage) {
+    public void decreaseHealth(int damage) {
         this.health -= damage;
     }
 
