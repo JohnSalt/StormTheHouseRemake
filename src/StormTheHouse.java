@@ -8,7 +8,7 @@ import java.util.Random;
 public class StormTheHouse extends PApplet {
     final int MAIN_MENU = 0, PLAY_GAME = 1,SHOP_MENU = 2, EXIT_GAME = 3;
     int gameState = MAIN_MENU;
-    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunmanCost = 2000, gunDamage = 1, gunmen = 0;
+    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunmanCost = 2000, gunDamage = 1, gunmen = 0, payroll = 0;
     double reloadTime = 1312.5;
     boolean isMouseEnabled = true, spawnEnemies = true, isMouseHeld;
     ArrayList<Enemy> enemies = new ArrayList<>();
@@ -23,7 +23,7 @@ public class StormTheHouse extends PApplet {
     Magazine clip = new Magazine();
     GameTimer timer1 = new GameTimer();
     GameTimer dayTimer = new GameTimer();
-
+    int width = window.getWindowWidth(), height = window.getWindowHeight();
 
     public static void main(String[] args) {
         PApplet.main("StormTheHouse");
@@ -77,7 +77,7 @@ public class StormTheHouse extends PApplet {
     }
 
     public void settings() {
-        size(window.getWindowWidth(), window.getWindowHeight());
+        size(width, height);
     }
 
     public void draw() {
@@ -89,11 +89,12 @@ public class StormTheHouse extends PApplet {
                 dayTimer.startTimer(this);
             }
 
-            if(millis() - dayTimer.getStartTime() < 30000) {
+            if(millis() - dayTimer.getStartTime() < 75000) {
                 gameStateRunGame();
-                text((float)(millis()-dayTimer.getStartTime())/1000, 0,window.getWindowHeight()-40);
+                text((float)(millis()-dayTimer.getStartTime())/1000, 0,height-40);
             } else {
                 dayTimer.stopTimer();
+                wallet.decreaseMoney(payroll);
                 gameState = SHOP_MENU;
             }
         }
@@ -118,7 +119,7 @@ public class StormTheHouse extends PApplet {
                             ellipse(mouseX, mouseY, 5, 5);
                             if (enemies.get(i).getHealth() == 0) {
                                 enemies.remove(i);
-                                updateWallet();
+                                wallet.increaseMoney(100);
                             }
                         }
                     }
@@ -128,7 +129,7 @@ public class StormTheHouse extends PApplet {
             }
         }
         if (gameState == SHOP_MENU) {
-            if (mouseX >= window.getWindowWidth()/2-50 && mouseX <= window.getWindowWidth()/2+50 && mouseY >= window.getWindowHeight() - 80 && mouseY <= window.getWindowHeight() - 40) {
+            if (mouseX >= width/2-50 && mouseX <= width/2+50 && mouseY >= height - 80 && mouseY <= height - 40) {
 
                 gameState = PLAY_GAME;
                 day++;
@@ -172,6 +173,17 @@ public class StormTheHouse extends PApplet {
                     wallet.decreaseMoney(800);
                 }
             }
+
+            //add craftsman
+
+            if (mouseX >= 155 && mouseX <= 255 && mouseY >= 334 && mouseY <= 444) {  //add gunman
+                if (wallet.getMoney() >= gunmanCost) {
+                    gunmen++;
+                    wallet.decreaseMoney(2000);
+                    payroll += 150;
+                }
+            }
+
             if (mouseX >= 565 && mouseX <= 665 && mouseY >= 334 && mouseY <= 444) {  //upgrade house
                 if (wallet.getMoney() >= houseUpgradeCost && houseUpgradeCost != 150000) {
                     base.increaseMaxHealth(375);
@@ -181,12 +193,7 @@ public class StormTheHouse extends PApplet {
                     System.out.println(houseUpgradeCost);
                 }
             }
-            if (mouseX >= 155 && mouseX <= 255 && mouseY >= 334 && mouseY <= 444) {
-                if (wallet.getMoney() >= gunmanCost) {
-                    gunmen++;
-                    wallet.decreaseMoney(2000);
-                }
-            }
+
         }
     }
     public void mouseReleased() {
@@ -271,7 +278,7 @@ public class StormTheHouse extends PApplet {
         stroke(0);
         fill(227, 123, 123);
         if (healthBarLength >= 0) {
-            rect((float)window.getWindowWidth() / 2+100, 5, healthBarLength, 12);
+            rect((float)width / 2+100, 5, healthBarLength, 12);
         }
     }
     public void updateAmmoBar() {
@@ -351,14 +358,14 @@ public class StormTheHouse extends PApplet {
 
         image(mainMenu,0,0);
 
-        if (mouseX >= window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-5) {
-            image(startButtonLarge, window.getWindowWidth() - 305, window.getWindowHeight() - 185);
+        if (mouseX >= width - 300 && mouseX <= width && mouseY >= height - 180 && mouseY <= height-5) {
+            image(startButtonLarge, width - 305, height - 185);
         } else {
-            image(startButtonSmall, window.getWindowWidth() - 300, window.getWindowHeight() - 180);
+            image(startButtonSmall, width - 300, height - 180);
         }
 
 
-        if (mousePressed && mouseX>=window.getWindowWidth() - 300 && mouseX <= window.getWindowWidth() && mouseY >= window.getWindowHeight() - 180 && mouseY <= window.getWindowHeight()-2) {
+        if (mousePressed && mouseX>=width - 300 && mouseX <= width && mouseY >= height - 180 && mouseY <= height-2) {
             gameState = PLAY_GAME;
         }
     }
@@ -371,7 +378,7 @@ public class StormTheHouse extends PApplet {
 
         window.drawComponents(this);
         base.drawBase(this);
-        image(frog,830,(float)window.getWindowHeight()/2-75);
+        image(frog,830,(float)height/2-75);
         if (spawnEnemies) {
             createEnemies();
         }
@@ -381,13 +388,11 @@ public class StormTheHouse extends PApplet {
         }
         textAlign(CENTER);
         fill(	133, 187, 101);
-        text("$" + wallet.getMoney(),(float)window.getWindowWidth()/2,18);
+        text("$" + wallet.getMoney(),(float)width/2,18);
         textAlign(LEFT);
         fill(0);
 
-        /*if (enemies.size() == 0) { //Round End
-            gameState = SHOP_MENU;
-        }*/
+
         for (Enemy enemy : enemies) {
             loadImages(enemy.getCurrentX(), enemy.getStartingY());  //ANIMATION
         }
@@ -407,14 +412,14 @@ public class StormTheHouse extends PApplet {
             timer1.stopTimer();
         }
 
-        text("Day: " + day, window.getWindowWidth()-textSizeModifier, 18);  //draws the day number
+        text("Day: " + day, width-textSizeModifier, 18);  //draws the day number
 
         moveAll();
         checkWallCollision();
         damageWall();
 
         fill(0,204,0);
-        text(base.getHealth() + "/" + base.getMaxHealth(),(float)window.getWindowWidth()/2+245,18);  //base health counter
+        text(base.getHealth() + "/" + base.getMaxHealth(),(float)width/2+245,18);  //base health counter
         fill(204, 200, 78);
         text(clip.getAmmo() + "/" + clip.getCapacity(),158,18);//ammo counter
 
@@ -428,36 +433,40 @@ public class StormTheHouse extends PApplet {
         for (int i = 0; i < enemies.size(); i++) {
             enemies.remove(i);
         }
+
         stroke(0);
         textSize(15);
         image(window.background,0,0);
         base.drawBase(this);
         fill(100,100,100,225);
-        rect(0,0,window.getWindowWidth(),window.getWindowHeight()); //background
+        rect(0,0,width,height); //background
 
         fill(100);
         rect(0,0,1024,25); //top bar
 
         stroke(0);
         fill(0);
-        rect(window.getWindowWidth()/2+100, 5,142,15); //healthBar
+        rect(width/2+100, 5,142,15); //healthBar
         stroke(0);
         rect(5, 5,142,15); //ammo bar
         stroke(0);
         fill(227, 123, 123);
-        rect((float)window.getWindowWidth()/2+101,6,(float)base.getHealth()/base.getMaxHealth()*140,13); //health bar colored
+        rect((float)width/2+101,6,(float)base.getHealth()/base.getMaxHealth()*140,13); //health bar colored
         fill(207, 209, 88);
         rect(6,6,(float)clip.getAmmo()/clip.getCapacity()*140,13);  //ammo bar colored
         fill(0,204,0);
-        text(base.getHealth() + "/" + base.getMaxHealth(),(float)window.getWindowWidth()/2+245,20);  //base health counter
+        text(base.getHealth() + "/" + base.getMaxHealth(),(float)width/2+245,20);  //base health counter
         fill(255,255,153);
         text(clip.getAmmo() + "/" + clip.getCapacity(),158,20);
         fill(207, 209, 88);
 
         textAlign(CENTER);
+
+        fill(200);
+        text("Payroll: $" + payroll + "/day", (float)width/2,(float)height/2);
         stroke(133, 187, 101);
         fill(133, 187, 101);
-        text("$" + wallet.getMoney(),(float)window.getWindowWidth()/2,20);
+        text("$" + wallet.getMoney(),(float)width/2,20);
 
         imageMode(CENTER);
         image(clipSizeUpgrade,205,192);
@@ -487,7 +496,7 @@ public class StormTheHouse extends PApplet {
             text("MAX",615,384);
         }
         image(sniperRifle,820,384);
-        image(done,(float)window.getWindowWidth()/2,window.getWindowHeight()-60);
+        image(done,(float)width/2,height-60);
         imageMode(CORNER);
         textAlign(CENTER);
 
@@ -504,15 +513,39 @@ public class StormTheHouse extends PApplet {
         fill(0);
         rect(0,0,1024,576);
         fill(194, 54, 54);
-        text("YOU DUMB ASS UWU", (float)window.getWindowWidth() / 2, (float)window.getWindowHeight() / 2);
+        text("YOU DUMB ASS UWU", (float)width / 2, (float)height / 2);
     }
 
     public void gunmenShoot() {
-        if (gunmen > 0 && timer1.getElapsedTime(timer1.getStartTime(),this)%3500*Math.pow(gunmen,-0.6) >= 0 && timer1.getElapsedTime(timer1.getStartTime(),this)%3500*Math.pow(gunmen,-0.6) <= 0.5) {
-            enemies.get(r.nextInt(enemies.size())).decreaseHealth(1);
-            System.out.println("Enemy shot");
+        System.out.println("Millis: " + millis());
+        System.out.println(dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))));
+        if (millis() > 2000 && gunmen > 0 && dayTimer.getIsRunning() && dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))) >= 0 && dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))) <= 49) {
+            if (enemies.get(0).getCurrentX() > 0) {
+                enemies.get(0).decreaseHealth(gunDamage);
+                System.out.println("Enemy shot");
+                checkForDead();
+            } else {
+                System.out.println("Enemy outside window");
+                getReachableEnemy().decreaseHealth(gunDamage);
+                checkForDead();
+            }
         }
     }
-
+    public Enemy getReachableEnemy() {
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies.get(i).getCurrentX() > 0) {
+                return enemies.get(i);
+            }
+        }
+        return enemies.get(0);
+    }
+    public void checkForDead() {
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies.get(i).getHealth() <= 0) {
+                enemies.remove(i);
+                wallet.increaseMoney(100);
+            }
+        }
+    }
 }
 //947*Math.log(clip.getCapacity()) + 1059 when to stop timer
