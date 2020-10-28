@@ -13,11 +13,7 @@ public class Enemy {
         this.startingY = r.nextInt(326)+192;
         this.currentX = r.nextInt((100)+20)*-1;
         randomChance = r.nextInt(100)+1;
-        /*if (randomChance>50) {
-            this.currentX = r.nextInt(300) * -1;
-        } else {
-            this.currentX = (r.nextInt(800)+300)*-1;
-        }*/
+
         this.health = 2;
     }
     public Enemy(PApplet parent) {
@@ -28,12 +24,6 @@ public class Enemy {
         this.startingY = r.nextInt(376)+192;
         this.currentX = currentX;
     }
-
-    /*public void drawEnemy(PApplet parent, Enemy e) {   //use to see basic hitbox;
-        //parent.fill(255,0,0);
-        //parent.rectMode(parent.CORNER);
-        //parent.rect(currentX,startingY,20,50);
-    }*/
 
 
     public int getCurrentX() {
