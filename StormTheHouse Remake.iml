@@ -11,5 +11,6 @@
     <orderEntry type="library" name="sound" level="project" />
     <orderEntry type="library" name="jsyn-20171016" level="project" />
     <orderEntry type="library" name="javamp3-1.0.4" level="project" />
+    <orderEntry type="library" name="gifAnimation" level="project" />
   </component>
 </module>
