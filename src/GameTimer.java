@@ -29,4 +29,8 @@ public class GameTimer {
     public long getStartTime() {
         return startTime;
     }
+
+    public long getElapsedTime(long startTime, PApplet parent) {
+        return parent.millis() - startTime;
+    }
 }
