@@ -3,17 +3,17 @@ import processing.core.PFont;
 import processing.core.PImage;
 import processing.sound.*;
 import java.util.ArrayList;
-
-
+import gifAnimation.*;
+import java.util.Random;
 public class StormTheHouse extends PApplet {
     final int MAIN_MENU = 0, PLAY_GAME = 1,SHOP_MENU = 2, EXIT_GAME = 3;
     int gameState = MAIN_MENU;
-    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunDamage = 1;
+    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunmanCost = 2000, gunDamage = 1, gunmen = 0;
     double reloadTime = 1312.5;
     boolean isMouseEnabled = true, spawnEnemies = true, isMouseHeld;
     ArrayList<Enemy> enemies = new ArrayList<>();
 
-    SoundFile background;
+    Random r = new Random();
     PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10,mainMenu,startButtonLarge,startButtonSmall,clipSizeUpgrade,wallUpgrade,houseUpgrade,sniperRifle,addGunman,addCraftsman,missileSilo,repair,done,frog;
     PFont gameFont;
     Window window = new Window(this);
@@ -33,29 +33,29 @@ public class StormTheHouse extends PApplet {
 
         gameFont = createFont("GROBOLD.ttf",15);
         textFont(gameFont);
-        mainMenu = loadImage("main-menu-screen.png");
-        startButtonLarge = loadImage("start-button-larger.png");
-        startButtonSmall = loadImage("start-button-smaller.png");
-        clipSizeUpgrade = loadImage("clip-size-upgrade.png");
-        wallUpgrade = loadImage("upgrade-wall.png");
-        sniperRifle = loadImage("sniper-rifle.png");
-        repair = loadImage("repair.png");
-        missileSilo = loadImage("missile-silo.png");
-        houseUpgrade = loadImage("house-upgrade.png");
-        addGunman = loadImage("add-gunman.png");
-        addCraftsman = loadImage("add-craftsman.png");
-        done = loadImage("done.png");
-        frog = loadImage("frog.png");
-        img1 = loadImage("frame1.gif");
-        img2 = loadImage("frame1.gif");
-        img3 = loadImage("frame2.gif");
-        img4 = loadImage("frame2.gif");
-        img5 = loadImage("frame3.gif");
-        img1 = loadImage("frame3.gif");
-        img2 = loadImage("frame4.gif");
-        img3 = loadImage("frame4.gif");
-        img4 = loadImage("frame5.gif");
-        img5 = loadImage("frame5.gif");
+        mainMenu = loadImage("images/main-menu-screen.png");
+        startButtonLarge = loadImage("images/start-button-larger.png");
+        startButtonSmall = loadImage("images/start-button-smaller.png");
+        clipSizeUpgrade = loadImage("images/clip-size-upgrade.png");
+        wallUpgrade = loadImage("images/upgrade-wall.png");
+        sniperRifle = loadImage("images/sniper-rifle.png");
+        repair = loadImage("images/repair.png");
+        missileSilo = loadImage("images/missile-silo.png");
+        houseUpgrade = loadImage("images/house-upgrade.png");
+        addGunman = loadImage("images/add-gunman.png");
+        addCraftsman = loadImage("images/add-craftsman.png");
+        done = loadImage("images/done.png");
+        frog = loadImage("images/frog.png");
+        img1 = loadImage("images/frame1.gif");
+        img2 = loadImage("images/frame1.gif");
+        img3 = loadImage("images/frame2.gif");
+        img4 = loadImage("images/frame2.gif");
+        img5 = loadImage("images/frame3.gif");
+        img1 = loadImage("images/frame3.gif");
+        img2 = loadImage("images/frame4.gif");
+        img3 = loadImage("images/frame4.gif");
+        img4 = loadImage("images/frame5.gif");
+        img5 = loadImage("images/frame5.gif");
         images.add(img1);
         images.add(img2);
         images.add(img3);
@@ -67,7 +67,7 @@ public class StormTheHouse extends PApplet {
         images.add(img9);
         images.add(img10);
 
-        window.background = loadImage("background.png");
+        window.background = loadImage("images/background.png");
 
         window.drawComponents(this);
         frameRate(20);
@@ -88,17 +88,13 @@ public class StormTheHouse extends PApplet {
             if (!dayTimer.getIsRunning()) {
                 dayTimer.startTimer(this);
             }
-            System.out.println("AFTER START TIMER");
 
-            if(millis() - dayTimer.getStartTime() < 75000) {
-                System.out.println("IN IF");
+            if(millis() - dayTimer.getStartTime() < 30000) {
                 gameStateRunGame();
                 text((float)(millis()-dayTimer.getStartTime())/1000, 0,window.getWindowHeight()-40);
             } else {
-                System.out.println("IN ELSE");
                 dayTimer.stopTimer();
                 gameState = SHOP_MENU;
-                System.out.println("STOPPED TIMER");
             }
         }
         if (gameState == SHOP_MENU) {
@@ -176,13 +172,19 @@ public class StormTheHouse extends PApplet {
                     wallet.decreaseMoney(800);
                 }
             }
-            if (mouseX >= 565 && mouseX <= 665 && mouseY >= 334 && mouseY <= 444) {
+            if (mouseX >= 565 && mouseX <= 665 && mouseY >= 334 && mouseY <= 444) {  //upgrade house
                 if (wallet.getMoney() >= houseUpgradeCost && houseUpgradeCost != 150000) {
                     base.increaseMaxHealth(375);
                     wallet.decreaseMoney(houseUpgradeCost);
                     System.out.println(houseUpgradeCost);
                     houseUpgradeCost += 50000;
                     System.out.println(houseUpgradeCost);
+                }
+            }
+            if (mouseX >= 155 && mouseX <= 255 && mouseY >= 334 && mouseY <= 444) {
+                if (wallet.getMoney() >= gunmanCost) {
+                    gunmen++;
+                    wallet.decreaseMoney(2000);
                 }
             }
         }
@@ -306,7 +308,7 @@ public class StormTheHouse extends PApplet {
         wallet.increaseMoney(100);
     }
 
-    public void reloadAnimation() {
+    public void reloadAnimation() {    //draws reloading animation
         if (timer1.isRunning) {
             if (millis()-timer1.getStartTime() >0 && millis()-timer1.getStartTime() <= reloadTime/10) {
                 rect(5,5,14,12);
@@ -364,7 +366,9 @@ public class StormTheHouse extends PApplet {
 
         updateSpeedModifier();
         textSize(15);
+
         image(window.background,0,0);
+
         window.drawComponents(this);
         base.drawBase(this);
         image(frog,830,(float)window.getWindowHeight()/2-75);
@@ -387,7 +391,7 @@ public class StormTheHouse extends PApplet {
         for (Enemy enemy : enemies) {
             loadImages(enemy.getCurrentX(), enemy.getStartingY());  //ANIMATION
         }
-
+        gunmenShoot();
         if (clip.getAmmo() == 0 && isMouseHeld) {
             fill(252,0,0);
             textAlign(CENTER);
@@ -502,5 +506,13 @@ public class StormTheHouse extends PApplet {
         fill(194, 54, 54);
         text("YOU DUMB ASS UWU", (float)window.getWindowWidth() / 2, (float)window.getWindowHeight() / 2);
     }
+
+    public void gunmenShoot() {
+        if (gunmen > 0 && timer1.getElapsedTime(timer1.getStartTime(),this)%3500*Math.pow(gunmen,-0.6) >= 0 && timer1.getElapsedTime(timer1.getStartTime(),this)%3500*Math.pow(gunmen,-0.6) <= 0.5) {
+            enemies.get(r.nextInt(enemies.size())).decreaseHealth(1);
+            System.out.println("Enemy shot");
+        }
+    }
+
 }
 //947*Math.log(clip.getCapacity()) + 1059 when to stop timer
