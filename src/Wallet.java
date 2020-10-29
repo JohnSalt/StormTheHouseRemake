@@ -5,9 +5,7 @@ public class Wallet {
         this.money = 0;
     }
 
-    public void setMoney(int money) {
-        this.money = money;
-    }
+
 
     public int getMoney() {
         return money;

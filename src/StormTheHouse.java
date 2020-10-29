@@ -1,9 +1,7 @@
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
-import processing.sound.*;
 import java.util.ArrayList;
-import gifAnimation.*;
 import java.util.Random;
 public class StormTheHouse extends PApplet {
     final int MAIN_MENU = 0, PLAY_GAME = 1,SHOP_MENU = 2, EXIT_GAME = 3;
@@ -166,11 +164,7 @@ public class StormTheHouse extends PApplet {
             }
             if (mouseX >= 565 && mouseX <= 665 && mouseY >= 142 && mouseY <= 242) { //heal wall
                 if (wallet.getMoney()>=800 && base.getHealth() < base.getMaxHealth()) {
-                    if (base.getMaxHealth() - base.getHealth() < 20) {
-                        base.increaseHealth(base.getMaxHealth()-base.getHealth());
-                    } else {
-                        base.increaseHealth(20);
-                    }
+                    base.increaseHealth(Math.min(base.getMaxHealth() - base.getHealth(), 20));
                     wallet.decreaseMoney(800);
                 }
             }
@@ -337,9 +331,6 @@ public class StormTheHouse extends PApplet {
             enemy.setSpeedModifier(enemy.getSpeedModifier() + change);
         }
     }
-    public void updateWallet() {
-        wallet.increaseMoney(100);
-    }
 
     public void reloadAnimation() {    //draws reloading animation
         if (timer1.isRunning) {
@@ -474,7 +465,7 @@ public class StormTheHouse extends PApplet {
 
         stroke(0);
         fill(0);
-        rect(width/2+100, 5,142,15); //healthBar
+        rect((float)width/2+100, 5,142,15); //healthBar
         stroke(0);
         rect(5, 5,142,15); //ammo bar
         stroke(0);
@@ -551,18 +542,17 @@ public class StormTheHouse extends PApplet {
             if (enemies.get(0).getCurrentX() > 0) {
                 enemies.get(0).decreaseHealth(gunDamage);
                 System.out.println("Enemy shot");
-                checkForDead();
             } else {
                 System.out.println("Enemy outside window");
                 getReachableEnemy().decreaseHealth(gunDamage);
-                checkForDead();
             }
+            checkForDead();
         }
     }
     public Enemy getReachableEnemy() {
-        for (int i = 0; i < enemies.size(); i++) {
-            if (enemies.get(i).getCurrentX() > 0) {
-                return enemies.get(i);
+        for (Enemy enemy : enemies) {
+            if (enemy.getCurrentX() > 0) {
+                return enemy;
             }
         }
         return enemies.get(0);
@@ -604,7 +594,7 @@ public class StormTheHouse extends PApplet {
             fill(255,0,0);
             System.out.println("Missile Shot\nArea Affected (X): " + (randomEnemyX-missileRadius/2) + " to: " + (randomEnemyX-missileRadius/2) + missileRadius + "\n(Y): " + (randomEnemyY-missileRadius/2) + " to " + (randomEnemyY-missileRadius/2) + missileRadius);
 
-            rect(randomEnemyX-missileRadius/2,randomEnemyY-missileRadius/2,missileRadius,missileRadius);
+            rect(randomEnemyX-(float)missileRadius/2,randomEnemyY-(float)missileRadius/2,missileRadius,missileRadius);
             for (int i = 0; i<enemies.size();i++) {
                 if (enemies.get(i).getCurrentX() >= randomEnemyX - missileRadius/2 && enemies.get(i).getCurrentX() <= randomEnemyX + missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY - missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY + missileRadius/2) {
                     enemies.remove(i);

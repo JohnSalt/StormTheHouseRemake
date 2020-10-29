@@ -4,7 +4,7 @@ public class GameTimer {
     private long startTime;
     boolean isRunning;
 
-    public void GameTimer() {
+    public GameTimer() {
         startTime = 0;
         isRunning = false;
     }
@@ -18,9 +18,6 @@ public class GameTimer {
         isRunning = false;
     }
 
-    public void setIsRunning(boolean isRunning) {
-        this.isRunning = isRunning;
-    }
 
     public boolean getIsRunning() {
         return isRunning;

@@ -27,9 +27,6 @@ public class Base {
     public void decreaseHealth(int damage) {
         this.health -= damage;
     }
-    public void setMaxHealth(int maxHealth) {
-        this.maxHealth = maxHealth;
-    }
     public int getHealth() {
         return health;
     }
