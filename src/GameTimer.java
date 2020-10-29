@@ -30,7 +30,7 @@ public class GameTimer {
         return startTime;
     }
 
-    public long getElapsedTime(long startTime, PApplet parent) {
+    public long getElapsedTime(PApplet parent) {
         return parent.millis() - startTime;
     }
 }
