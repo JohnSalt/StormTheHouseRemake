@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Random;
 public class Enemy {
     private PApplet p;
-    private int speed, startingY, currentX, health, randomChance, speedModifier = 1;
+    private int speed, startingY, currentX, health, randomChance, speedModifier = 2;
     private Random r = new Random();
     public ArrayList<PImage> images;
 
     public Enemy() {
-        this.speed = r.nextInt(2)+speedModifier;
+        this.speed = r.nextInt(3)+speedModifier;
         this.startingY = r.nextInt(326)+192;
         this.currentX = r.nextInt((100)+20)*-1;
         randomChance = r.nextInt(100)+1;
@@ -71,3 +71,4 @@ public class Enemy {
 
 
 }
+//add internal timer to each and check each enemy if speed equals zero,start timer and based on intervals of that do animation and every 1000 millis attack
