@@ -8,9 +8,9 @@ import java.util.Random;
 public class StormTheHouse extends PApplet {
     final int MAIN_MENU = 0, PLAY_GAME = 1,SHOP_MENU = 2, EXIT_GAME = 3;
     int gameState = MAIN_MENU;
-    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunmanCost = 2000, gunDamage = 1, gunmen = 0, payroll = 0;
+    int day = 1, textSizeModifier = 100, houseUpgradeCost = 50000, wallUpgradeCost = 3000, gunmanCost = 2000, sniperCost = 75000, craftsmanCost = 8000, siloCost = 35000, gunDamage = 1, gunmen = 0, craftsman = 0, siloWorkers = 0, payroll = 0, missileRadius = 75;
     double reloadTime = 1312.5;
-    boolean isMouseEnabled = true, spawnEnemies = true, isMouseHeld;
+    boolean isMouseEnabled = true, spawnEnemies = true, missileSiloOwned = false, isMouseHeld;
     ArrayList<Enemy> enemies = new ArrayList<>();
 
     Random r = new Random();
@@ -89,7 +89,7 @@ public class StormTheHouse extends PApplet {
                 dayTimer.startTimer(this);
             }
 
-            if(millis() - dayTimer.getStartTime() < 75000) {
+            if(millis() - dayTimer.getStartTime() < 30000) {
                 gameStateRunGame();
                 text((float)(millis()-dayTimer.getStartTime())/1000, 0,height-40);
             } else {
@@ -133,6 +133,7 @@ public class StormTheHouse extends PApplet {
 
                 gameState = PLAY_GAME;
                 day++;
+                System.out.println("-------------------------------------------------------------------------------------------------------------------------------\nDay: " + day);
                 spawnEnemies = true;
             }
             if (mouseX >= 155 && mouseX <= 255 && mouseY >= 142 && mouseY <= 242) {  //upgrade clip
@@ -174,13 +175,32 @@ public class StormTheHouse extends PApplet {
                 }
             }
 
-            //add craftsman
+            if (mouseX >= 770 && mouseX <= 870 && mouseY >= 142 && mouseY <= 242) {  //add craftsman
+                if (wallet.getMoney() >= craftsmanCost) {
+                    craftsman++;
+                    wallet.decreaseMoney(craftsmanCost);
+                    payroll += 800;
+                }
+            }
 
             if (mouseX >= 155 && mouseX <= 255 && mouseY >= 334 && mouseY <= 444) {  //add gunman
                 if (wallet.getMoney() >= gunmanCost) {
                     gunmen++;
                     wallet.decreaseMoney(2000);
                     payroll += 150;
+                }
+            }
+
+            if (mouseX >= 360 && mouseX <= 460 && mouseY >= 334 && mouseY <= 444) {
+                if (wallet.getMoney() >= siloCost && missileSiloOwned) {
+                    wallet.decreaseMoney(siloCost);
+                    payroll += 1600;
+                    siloWorkers++;
+                }
+                if (wallet.getMoney() >= siloCost && !missileSiloOwned) {
+                    missileSiloOwned = true;
+                    wallet.decreaseMoney(siloCost);
+                    siloCost = 12000;
                 }
             }
 
@@ -193,7 +213,13 @@ public class StormTheHouse extends PApplet {
                     System.out.println(houseUpgradeCost);
                 }
             }
-
+            if (mouseX >= 770 && mouseX <= 870 && mouseY >= 334 && mouseY <= 444) {  //sniper button
+                if (wallet.getMoney() >= sniperCost) {
+                    gunDamage = 2;
+                    wallet.decreaseMoney(sniperCost);
+                    sniperCost = 0;
+                }
+            }
         }
     }
     public void mouseReleased() {
@@ -397,6 +423,8 @@ public class StormTheHouse extends PApplet {
             loadImages(enemy.getCurrentX(), enemy.getStartingY());  //ANIMATION
         }
         gunmenShoot();
+        shootSilo();
+        craftsmanRepair();
         if (clip.getAmmo() == 0 && isMouseHeld) {
             fill(252,0,0);
             textAlign(CENTER);
@@ -518,8 +546,8 @@ public class StormTheHouse extends PApplet {
 
     public void gunmenShoot() {
         System.out.println("Millis: " + millis());
-        System.out.println(dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))));
-        if (millis() > 2000 && gunmen > 0 && dayTimer.getIsRunning() && dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))) >= 0 && dayTimer.getElapsedTime(dayTimer.getStartTime(),this)%(3500*(Math.pow(gunmen, -0.6))) <= 49) {
+        System.out.println(dayTimer.getElapsedTime(this)%(3500*(Math.pow(gunmen, -0.6))));
+        if (millis() > 2000 && gunmen > 0 && dayTimer.getIsRunning() && dayTimer.getElapsedTime(this)%(3500*(Math.pow(gunmen, -0.6))) >= 0 && dayTimer.getElapsedTime(this)%(3500*(Math.pow(gunmen, -0.6))) <= 49) {
             if (enemies.get(0).getCurrentX() > 0) {
                 enemies.get(0).decreaseHealth(gunDamage);
                 System.out.println("Enemy shot");
@@ -545,6 +573,46 @@ public class StormTheHouse extends PApplet {
                 enemies.remove(i);
                 wallet.increaseMoney(100);
             }
+        }
+    }
+
+    public void craftsmanRepair() {
+        if (craftsman > 0 && base.getHealth() != base.getMaxHealth() && dayTimer.getIsRunning() && dayTimer.getElapsedTime(this) % (3000 * (Math.pow(craftsman, -0.75))) >= 0 && dayTimer.getElapsedTime(this) % (3000 * (Math.pow(craftsman, -0.75))) <= 49) {
+            base.increaseHealth(1);
+        }
+    }
+    public void siloShoot() {
+        if (millis() > 2000 && siloWorkers > 0 && missileSiloOwned && dayTimer.getIsRunning() && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) >= 0 && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) <= 49) {
+            int randomX = r.nextInt(600)+20, randomY = r.nextInt(326)+192; //pick random start point for top left of explosion area
+            System.out.println("Missile Shot\nArea Affected (X): " + randomX + " to: " + randomX + missileRadius + "\n(Y): " + randomY + " to " + randomY + missileRadius);
+            rect(randomX,randomY,missileRadius,missileRadius);
+            for (int i = 0; i < enemies.size(); i++) {
+                if (enemies.get(i).getCurrentX() > randomX && enemies.get(i).getCurrentX() < randomX + missileRadius && enemies.get(i).getStartingY() > randomY && enemies.get(i).getStartingY() < randomY + missileRadius) {
+                    fill(200,0,0);
+
+                    enemies.remove(i);
+                    wallet.increaseMoney(100);
+                    System.out.println("Enemy " + i + " removed.");
+                }
+            }
+
+        }
+    }
+    public void shootSilo() { //fix index fix area affected
+        if (millis() > 2000 && siloWorkers > 0 && missileSiloOwned && dayTimer.getIsRunning() && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) >= 0 && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) <= 49) {
+            int randomEnemyIndex = r.nextInt(enemies.size()), randomEnemyX = enemies.get(randomEnemyIndex).getCurrentX(), randomEnemyY = enemies.get(randomEnemyIndex).getStartingY();
+            fill(255,0,0);
+            System.out.println("Missile Shot\nArea Affected (X): " + (randomEnemyX-missileRadius/2) + " to: " + (randomEnemyX-missileRadius/2) + missileRadius + "\n(Y): " + (randomEnemyY-missileRadius/2) + " to " + (randomEnemyY-missileRadius/2) + missileRadius);
+
+            rect(randomEnemyX-missileRadius/2,randomEnemyY-missileRadius/2,missileRadius,missileRadius);
+            for (int i = 0; i<enemies.size();i++) {
+                if (enemies.get(i).getCurrentX() >= randomEnemyX - missileRadius/2 && enemies.get(i).getCurrentX() <= randomEnemyX + missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY - missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY + missileRadius/2) {
+                    enemies.remove(i);
+                    wallet.increaseMoney(100);
+                    System.out.println("Enemy " + i + " removed.");
+                }
+            }
+            enemies.remove(randomEnemyIndex);
         }
     }
 }
