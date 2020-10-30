@@ -13,7 +13,7 @@ public class StormTheHouse extends PApplet {
 
     Random r = new Random();
     PImage img1, img2,img3,img4,img5,img6,img7,img8,img9,img10,mainMenu,startButtonLarge,startButtonSmall,clipSizeUpgrade,wallUpgrade,houseUpgrade,sniperRifle,addGunman,addCraftsman,missileSilo,repair,done,frog;
-    PFont gameFont;
+    PFont gameFont, sansSerif;
     Window window = new Window(this);
     Base base = new Base();
     ArrayList<PImage> images = new ArrayList<>();
@@ -28,7 +28,7 @@ public class StormTheHouse extends PApplet {
     }
 
     public void setup() {
-
+        sansSerif = createFont("SansSerif.bold",10);
         gameFont = createFont("GROBOLD.ttf",15);
         textFont(gameFont);
         mainMenu = loadImage("images/main-menu-screen.png");
@@ -87,7 +87,7 @@ public class StormTheHouse extends PApplet {
                 dayTimer.startTimer(this);
             }
 
-            if(millis() - dayTimer.getStartTime() < 30000) {
+            if(millis() - dayTimer.getStartTime() < 8000) {
                 gameStateRunGame();
                 text((float)(millis()-dayTimer.getStartTime())/1000, 0,height-40);
             } else {
@@ -453,7 +453,6 @@ public class StormTheHouse extends PApplet {
             enemies.remove(i);
         }
 
-        stroke(0);
         textSize(15);
         image(window.background,0,0);
         base.drawBase(this);
@@ -517,6 +516,16 @@ public class StormTheHouse extends PApplet {
         image(sniperRifle,820,384);
         image(done,(float)width/2,height-60);
         imageMode(CORNER);
+        fill(167,95,9);
+        textFont(sansSerif,10);
+        stroke(0);
+        if (wallUpgradeCost!=13000) {
+            text("$" + wallUpgradeCost, 387, 165);
+        }
+
+
+
+        textFont(gameFont,15);
         textAlign(CENTER);
 
         textAlign(LEFT);
@@ -590,19 +599,27 @@ public class StormTheHouse extends PApplet {
     }
     public void shootSilo() { //fix index fix area affected
         if (millis() > 2000 && siloWorkers > 0 && missileSiloOwned && dayTimer.getIsRunning() && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) >= 0 && dayTimer.getElapsedTime(this)%(3500*(Math.pow(siloWorkers, -0.6))) <= 49) {
-            int randomEnemyIndex = r.nextInt(enemies.size()), randomEnemyX = enemies.get(randomEnemyIndex).getCurrentX(), randomEnemyY = enemies.get(randomEnemyIndex).getStartingY();
+            int randomEnemyIndex = r.nextInt(enemies.size()-1);
+            float radiusStartX = enemies.get(randomEnemyIndex).getCurrentX()-((float)missileRadius/2), radiusStartY = enemies.get(randomEnemyIndex).getStartingY()-((float)missileRadius/2);
             fill(255,0,0);
-            System.out.println("Missile Shot\nArea Affected (X): " + (randomEnemyX-missileRadius/2) + " to: " + (randomEnemyX-missileRadius/2) + missileRadius + "\n(Y): " + (randomEnemyY-missileRadius/2) + " to " + (randomEnemyY-missileRadius/2) + missileRadius);
+            System.out.println(enemies.get(randomEnemyIndex).getCurrentX() + " " + enemies.get(randomEnemyIndex).getStartingY());
+            System.out.println("Missile Shot\nArea Affected (X): " + (radiusStartX) + " to: " + (radiusStartX+missileRadius) + "\n(Y): " + radiusStartY + " to " + (radiusStartY+missileRadius));
 
-            rect(randomEnemyX-(float)missileRadius/2,randomEnemyY-(float)missileRadius/2,missileRadius,missileRadius);
+            rect(radiusStartX,radiusStartY,missileRadius,missileRadius);
+            rect(radiusStartX,radiusStartY,missileRadius,missileRadius);
+            rect(radiusStartX,radiusStartY,missileRadius,missileRadius);
+            rect(radiusStartX,radiusStartY,missileRadius,missileRadius);
+
             for (int i = 0; i<enemies.size();i++) {
-                if (enemies.get(i).getCurrentX() >= randomEnemyX - missileRadius/2 && enemies.get(i).getCurrentX() <= randomEnemyX + missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY - missileRadius/2 && enemies.get(i).getStartingY() >= randomEnemyY + missileRadius/2) {
-                    enemies.remove(i);
+                if (enemies.get(i).getCurrentX() >= radiusStartX && enemies.get(i).getCurrentX() <= (radiusStartX+missileRadius) && enemies.get(i).getStartingY() >= radiusStartY && enemies.get(i).getStartingY() <= (radiusStartY+missileRadius)) {
+                    enemies.get(i).decreaseHealth(3);
                     wallet.increaseMoney(100);
-                    System.out.println("Enemy " + i + " removed.");
+                    System.out.println("Enemy " + i + " damaged by 3.");
                 }
             }
             enemies.remove(randomEnemyIndex);
+            wallet.increaseMoney(100);
+            checkForDead();
         }
     }
 }
